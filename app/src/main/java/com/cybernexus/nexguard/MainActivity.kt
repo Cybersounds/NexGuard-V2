@@ -1,16 +1,13 @@
 package com.cybernexus.nexguard
-
-import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.cybernexus.nexguard.services.ForegroundProtectionService
-
 class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        startForegroundService(
-            Intent(this, ForegroundProtectionService::class.java)
-        )
-    }
+ override fun onCreate(savedInstanceState: Bundle?) {
+  super.onCreate(savedInstanceState)
+  val tv = TextView(this)
+  tv.text = "NexGuard V2 Running"
+  tv.textSize = 24f
+  setContentView(tv)
+ }
 }
