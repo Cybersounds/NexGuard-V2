@@ -4,14 +4,24 @@ plugins {
 }
 android {
  namespace = "com.cybernexus.nexguard"
- compileSdk = 34
- defaultConfig {
-   applicationId = "com.cybernexus.nexguard"
-   minSdk = 26
-   targetSdk = 34
-   versionCode = 1
-   versionName = "1.0"
- }
+    compileSdk = 34
+
+    defaultConfig {
+        applicationId = "com.cybernexus.nexguard"
+        minSdk = 26
+        targetSdk = 34
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
 dependencies {
  implementation("androidx.core:core-ktx:1.12.0")
