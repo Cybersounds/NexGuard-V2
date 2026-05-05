@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApiClient {
 
-    private const val BASE_URL = "https://nexguard.com.ng/"
+    private const val BASE_URL = "https://nexguard.com.ng/api/"
 
     val retrofit: Retrofit by lazy {
         Retrofit.Builder()
