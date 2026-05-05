@@ -11,7 +11,14 @@ data class PanicRequest(
     val longitude: Double?
 )
 
+data class RegisterRequest(
+    val deviceId: String
+)
+
 interface ApiService {
     @POST("panic.php")
     fun sendPanic(@Body request: PanicRequest): Call<Void>
+
+    @POST("register.php")
+    fun registerDevice(@Body request: RegisterRequest): Call<Void>
 }
