@@ -6,11 +6,12 @@ import retrofit2.http.POST
 
 data class PanicRequest(
     val deviceId: String,
-    val message: String
+    val message: String,
+    val latitude: Double?,
+    val longitude: Double?
 )
 
 interface ApiService {
-
-    @POST("panic")
+    @POST("panic.php")
     fun sendPanic(@Body request: PanicRequest): Call<Void>
 }
