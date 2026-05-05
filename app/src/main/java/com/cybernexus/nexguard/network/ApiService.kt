@@ -21,4 +21,7 @@ interface ApiService {
 
     @POST("register.php")
     fun registerDevice(@Body request: RegisterRequest): Call<Void>
+
+    @POST("contacts.php")
+    fun saveContacts(@Body request: ContactsRequest): Call<Void>
 }
