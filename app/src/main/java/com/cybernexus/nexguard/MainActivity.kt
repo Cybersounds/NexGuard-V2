@@ -14,6 +14,7 @@ import com.cybernexus.nexguard.services.PanicService
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import android.widget.ImageView
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,14 +42,20 @@ class MainActivity : AppCompatActivity() {
             setPadding(60, 80, 60, 80)
         }
 
-        // Title
-        val title = TextView(this).apply {
-            text = "NexGuard"
-            textSize = 28f
-            gravity = Gravity.CENTER
-            setPadding(0, 0, 0, 40)
-        }
-        layout.addView(title)
+        // Logo
+        val logo = ImageView(this).apply {
+            setImageResource(R.drawable.nexguard_logo)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                200
+            ).apply {
+                gravity = Gravity.CENTER_HORIZONTAL
+                setMargins(0, 0, 0, 40)
+            }
+            scaleType = ImageView.ScaleType.FIT_CENTER
+        }  
+        layout.addView(logo)
+
 
         // Contact fields
         val contact1Name  = editText("Contact 1 Name")
