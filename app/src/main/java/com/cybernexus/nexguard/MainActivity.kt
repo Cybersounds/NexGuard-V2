@@ -1,4 +1,4 @@
-kpackage com.cybernexus.nexguard
+package com.cybernexus.nexguard
 
 import android.Manifest
 import android.content.Intent
@@ -23,20 +23,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private var isDark = true
 
-    // Theme colors
     private val darkBg       = 0xFF0D1117.toInt()
     private val darkSurface  = 0xFF161B22.toInt()
     private val darkText     = 0xFFC9D1D9.toInt()
     private val darkSubText  = 0xFF8B949E.toInt()
-    private val darkBorder   = 0xFF30363D.toInt()
     private val lightBg      = 0xFFF0F4F8.toInt()
     private val lightSurface = 0xFFFFFFFF.toInt()
     private val lightText    = 0xFF0D1117.toInt()
     private val lightSubText = 0xFF57606A.toInt()
     private val accentBlue   = 0xFF1F6FEB.toInt()
     private val panicRed     = 0xFFCC0000.toInt()
-    private val panicRedHint = 0xFF8B0000.toInt()
     private val white        = 0xFFFFFFFF.toInt()
+    private val green        = 0xFF238636.toInt()
+    private val errorRed     = 0xFFF85149.toInt()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,16 +60,14 @@ class MainActivity : AppCompatActivity() {
         val text    = if (isDark) darkText    else lightText
         val subText = if (isDark) darkSubText else lightSubText
 
-        // Root scroll
         val scroll = ScrollView(this).apply { setBackgroundColor(bg) }
-
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(48, 60, 48, 60)
             setBackgroundColor(bg)
         }
 
-        // ── Header Row ──
+        // Header
         val headerRow = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -79,7 +76,6 @@ class MainActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { setMargins(0, 0, 0, 32) }
         }
-
         val appName = TextView(this).apply {
             this.text = "NEXGUARD"
             textSize = 22f
@@ -88,7 +84,6 @@ class MainActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
-
         val toggleBtn = TextView(this).apply {
             this.text = if (isDark) "☀ Light" else "🌙 Dark"
             textSize = 13f
@@ -101,12 +96,11 @@ class MainActivity : AppCompatActivity() {
                 buildUI()
             }
         }
-
         headerRow.addView(appName)
         headerRow.addView(toggleBtn)
         root.addView(headerRow)
 
-        // ── Status Card ──
+        // Status card
         val statusCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(32, 28, 32, 28)
@@ -116,39 +110,52 @@ class MainActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { setMargins(0, 0, 0, 28) }
         }
-
-        val statusDot = TextView(this).apply {
+        statusCard.addView(TextView(this).apply {
             this.text = "● PROTECTION ACTIVE"
             textSize = 13f
-            setTextColor(0xFF238636.toInt())
+            setTextColor(green)
             typeface = android.graphics.Typeface.DEFAULT_BOLD
-        }
-
-        val deviceLabel = TextView(this).apply {
+        })
+        statusCard.addView(TextView(this).apply {
             this.text = "Device: ${deviceId.take(16)}..."
             textSize = 11f
             setTextColor(subText)
             setPadding(0, 6, 0, 0)
-        }
-
-        statusCard.addView(statusDot)
-        statusCard.addView(deviceLabel)
+        })
         root.addView(statusCard)
 
-        // ── PANIC BUTTON ──
+        // Panic button
+        val panicStatus = TextView(this).apply {
+            this.text = ""
+            textSize = 13f
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(0, 10, 0, 0) }
+        }
         val panicBtn = Button(this).apply {
-            this.text = "🚨 TRIGGER PANIC"
+            this.text = "🚨  TRIGGER PANIC"
             textSize = 20f
             setTextColor(white)
-            setBackgroundColor(panicRed)
             typeface = android.graphics.Typeface.DEFAULT_BOLD
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 180
-            ).apply { setMargins(0, 0, 0, 12) }
+            ).apply { setMargins(0, 0, 0, 10) }
             background = roundedBg(panicRed, 16)
+            setOnClickListener {
+                try {
+                    PanicService(this@MainActivity).triggerPanic(deviceId)
+                    panicStatus.text = "✓ Panic alert sent"
+                    panicStatus.setTextColor(green)
+                } catch (e: Exception) {
+                    panicStatus.text = "Error: ${e.message}"
+                    panicStatus.setTextColor(errorRed)
+                }
+            }
         }
-
-        val panicHint = TextView(this).apply {
+        root.addView(panicBtn)
+        root.addView(TextView(this).apply {
             this.text = "or hold Volume Down 3× to trigger silently"
             textSize = 11f
             setTextColor(subText)
@@ -157,44 +164,18 @@ class MainActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { setMargins(0, 0, 0, 36) }
-        }
-
-        val panicStatus = TextView(this).apply {
-            this.text = ""
-            textSize = 13f
-            gravity = Gravity.CENTER
-            setTextColor(0xFF238636.toInt())
-        }
-
-        panicBtn.setOnClickListener {
-            try {
-                PanicService(this).triggerPanic(deviceId)
-                panicStatus.text = "✓ Panic alert sent"
-                panicStatus.setTextColor(0xFF238636.toInt())
-            } catch (e: Exception) {
-                panicStatus.text = "Error: ${e.message}"
-                panicStatus.setTextColor(0xFFF85149.toInt())
-                Log.e("NexGuard", "Panic error: ${e.message}")
-            }
-        }
-
-        root.addView(panicBtn)
-        root.addView(panicHint)
+        })
         root.addView(panicStatus)
 
-        // ── Section: Emergency Contacts ──
+        // Contacts section
         root.addView(sectionHeader("Emergency Contacts", text))
-
-        val contact1Name  = styledEdit("Contact 1 — Full Name", surface, text, subText)
-        val contact1Phone = styledEdit("Contact 1 — Phone (+234...)", surface, text, subText)
-        val contact2Name  = styledEdit("Contact 2 — Full Name", surface, text, subText)
-        val contact2Phone = styledEdit("Contact 2 — Phone (+234...)", surface, text, subText)
-        val contact3Name  = styledEdit("Contact 3 — Full Name", surface, text, subText)
-        val contact3Phone = styledEdit("Contact 3 — Phone (+234...)", surface, text, subText)
-
-        listOf(contact1Name, contact1Phone, contact2Name,
-               contact2Phone, contact3Name, contact3Phone)
-            .forEach { root.addView(it) }
+        val c1n = styledEdit("Contact 1 — Full Name", surface, text, subText)
+        val c1p = styledEdit("Contact 1 — Phone (+234...)", surface, text, subText)
+        val c2n = styledEdit("Contact 2 — Full Name", surface, text, subText)
+        val c2p = styledEdit("Contact 2 — Phone (+234...)", surface, text, subText)
+        val c3n = styledEdit("Contact 3 — Full Name", surface, text, subText)
+        val c3p = styledEdit("Contact 3 — Phone (+234...)", surface, text, subText)
+        listOf(c1n, c1p, c2n, c2p, c3n, c3p).forEach { root.addView(it) }
 
         val saveStatus = TextView(this).apply {
             this.text = ""
@@ -202,7 +183,6 @@ class MainActivity : AppCompatActivity() {
             gravity = Gravity.CENTER
             setPadding(0, 8, 0, 0)
         }
-
         val saveBtn = Button(this).apply {
             this.text = "SAVE CONTACTS"
             textSize = 14f
@@ -212,65 +192,54 @@ class MainActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { setMargins(0, 16, 0, 8) }
             background = roundedBg(accentBlue, 12)
-        }
-
-        saveBtn.setOnClickListener {
-            val contacts = mutableListOf<ContactItem>()
-            val n1 = contact1Name.text.toString().trim()
-            val p1 = contact1Phone.text.toString().trim()
-            val n2 = contact2Name.text.toString().trim()
-            val p2 = contact2Phone.text.toString().trim()
-            val n3 = contact3Name.text.toString().trim()
-            val p3 = contact3Phone.text.toString().trim()
-
-            if (n1.isNotEmpty() && p1.isNotEmpty()) contacts.add(ContactItem(n1, p1))
-            if (n2.isNotEmpty() && p2.isNotEmpty()) contacts.add(ContactItem(n2, p2))
-            if (n3.isNotEmpty() && p3.isNotEmpty()) contacts.add(ContactItem(n3, p3))
-
-            if (contacts.isEmpty()) {
-                saveStatus.text = "Add at least one contact"
-                saveStatus.setTextColor(0xFFF85149.toInt())
-                return@setOnClickListener
+            setOnClickListener {
+                val contacts = mutableListOf<ContactItem>()
+                if (c1n.text.isNotEmpty() && c1p.text.isNotEmpty())
+                    contacts.add(ContactItem(c1n.text.toString().trim(), c1p.text.toString().trim()))
+                if (c2n.text.isNotEmpty() && c2p.text.isNotEmpty())
+                    contacts.add(ContactItem(c2n.text.toString().trim(), c2p.text.toString().trim()))
+                if (c3n.text.isNotEmpty() && c3p.text.isNotEmpty())
+                    contacts.add(ContactItem(c3n.text.toString().trim(), c3p.text.toString().trim()))
+                if (contacts.isEmpty()) {
+                    saveStatus.text = "Add at least one contact"
+                    saveStatus.setTextColor(errorRed)
+                    return@setOnClickListener
+                }
+                saveContacts(deviceId, contacts, saveStatus)
             }
-            saveContacts(deviceId, contacts, saveStatus)
         }
-
         root.addView(saveBtn)
         root.addView(saveStatus)
 
-        // ── Footer ──
-        val footer = TextView(this).apply {
+        // Footer
+        root.addView(TextView(this).apply {
             this.text = "NexGuard v1.0 — CyberNexus Technologies"
             textSize = 11f
             setTextColor(subText)
             gravity = Gravity.CENTER
             setPadding(0, 48, 0, 0)
-        }
-        root.addView(footer)
+        })
 
         scroll.addView(root)
         setContentView(scroll)
     }
 
-    private fun sectionHeader(label: String, textColor: Int): TextView {
-        return TextView(this).apply {
-            text = label
-            textSize = 15f
-            setTextColor(textColor)
-            typeface = android.graphics.Typeface.DEFAULT_BOLD
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(0, 8, 0, 12) }
-        }
+    private fun sectionHeader(label: String, textColor: Int) = TextView(this).apply {
+        text = label
+        textSize = 15f
+        setTextColor(textColor)
+        typeface = android.graphics.Typeface.DEFAULT_BOLD
+        layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { setMargins(0, 8, 0, 12) }
     }
 
-    private fun styledEdit(hint: String, bg: Int, textColor: Int, hintColor: Int): EditText {
-        return EditText(this).apply {
+    private fun styledEdit(hint: String, bg: Int, textColor: Int, hintColor: Int) =
+        EditText(this).apply {
             this.hint = hint
             setHintTextColor(hintColor)
             setTextColor(textColor)
-            setBackgroundColor(bg)
             setPadding(24, 20, 24, 20)
             textSize = 14f
             background = roundedBg(bg, 10)
@@ -279,14 +248,12 @@ class MainActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { setMargins(0, 0, 0, 12) }
         }
-    }
 
-    private fun roundedBg(color: Int, radiusDp: Int): android.graphics.drawable.GradientDrawable {
-        return android.graphics.drawable.GradientDrawable().apply {
+    private fun roundedBg(color: Int, radiusDp: Int) =
+        android.graphics.drawable.GradientDrawable().apply {
             setColor(color)
             cornerRadius = radiusDp * resources.displayMetrics.density
         }
-    }
 
     private fun registerDevice(deviceId: String) {
         try {
@@ -311,13 +278,13 @@ class MainActivity : AppCompatActivity() {
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
                     runOnUiThread {
                         status.text = "✓ ${contacts.size} contact(s) saved"
-                        status.setTextColor(0xFF238636.toInt())
+                        status.setTextColor(green)
                     }
                 }
                 override fun onFailure(call: Call<Void>, t: Throwable) {
                     runOnUiThread {
                         status.text = "Failed to save contacts"
-                        status.setTextColor(0xFFF85149.toInt())
+                        status.setTextColor(errorRed)
                     }
                 }
             })

@@ -1,13 +1,14 @@
 package com.cybernexus.nexguard.services
 
-import android.app.*
-import android.content.Context
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
 import android.util.Log
-import android.view.KeyEvent
-import com.cybernexus.nexguard.MainActivity
+import androidx.core.app.NotificationCompat
 
 class ForegroundProtectionService : Service() {
 
@@ -21,6 +22,13 @@ class ForegroundProtectionService : Service() {
         Log.d("NexGuard", "Protection Service Started")
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == "VOLUME_PRESSED") {
+            onVolumePressed()
+        }
+        return START_STICKY
+    }
+
     private fun startForegroundNotification() {
         val channelId = "nexguard_protection"
 
@@ -30,7 +38,6 @@ class ForegroundProtectionService : Service() {
                 "NexGuard Protection",
                 NotificationManager.IMPORTANCE_LOW
             ).apply { description = "Keeps NexGuard active in background" }
-
             getSystemService(NotificationManager::class.java)
                 .createNotificationChannel(channel)
         }
@@ -45,31 +52,25 @@ class ForegroundProtectionService : Service() {
         startForeground(1, notification)
     }
 
-    fun onVolumePressed() {
+    private fun onVolumePressed() {
         val now = System.currentTimeMillis()
         volumePressTimestamps.add(now)
-
-        // Keep only recent presses within time window
         volumePressTimestamps.removeAll { now - it > TIME_WINDOW_MS }
-
-        Log.d("NexGuard", "Volume press detected: ${volumePressTimestamps.size}/$PRESS_LIMIT")
+        Log.d("NexGuard", "Volume press: ${volumePressTimestamps.size}/$PRESS_LIMIT")
 
         if (volumePressTimestamps.size >= PRESS_LIMIT) {
             volumePressTimestamps.clear()
-            triggerPanic()
+            triggerSilentPanic()
         }
     }
 
-    private fun triggerPanic() {
+    private fun triggerSilentPanic() {
         Log.d("NexGuard", "PANIC triggered via volume button!")
-        PanicService(this).triggerPanic(getDeviceId())
-    }
-
-    private fun getDeviceId(): String {
-        return android.provider.Settings.Secure.getString(
+        val androidId = Settings.Secure.getString(
             contentResolver,
-            android.provider.Settings.Secure.ANDROID_ID
+            Settings.Secure.ANDROID_ID
         )
+        PanicService(this).triggerPanic(androidId)
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
