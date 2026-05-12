@@ -210,6 +210,77 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(saveBtn)
         root.addView(saveStatus)
+   
+        // ── Stealth Mode ──
+root.addView(sectionHeader("Stealth Mode", text))
+root.addView(TextView(this).apply {
+    this.text = "Hides app icon. Dial *#1234# on your keypad to reopen."
+    textSize = 12f
+    setTextColor(subText)
+    layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply { setMargins(0, 0, 0, 16) }
+})
+
+val isStealthOn = prefs.getBoolean("stealth_on", false)
+val stealthStatus = TextView(this).apply {
+    this.text = if (isStealthOn) "● Stealth is ON" else "● Stealth is OFF"
+    textSize = 13f
+    setTextColor(if (isStealthOn) 0xFF8B949E.toInt() else green)
+    layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply { setMargins(0, 0, 0, 12) }
+}
+root.addView(stealthStatus)
+
+val stealthBtn = Button(this).apply {
+    this.text = if (isStealthOn) "DISABLE STEALTH MODE" else "ENABLE STEALTH MODE"
+    textSize = 14f
+    setTextColor(white)
+    layoutParams = LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.WRAP_CONTENT
+    ).apply { setMargins(0, 0, 0, 32) }
+    background = roundedBg(
+        if (isStealthOn) 0xFF6E7681.toInt() else 0xFF8B0000.toInt(), 12
+    )
+    setOnClickListener {
+        val newStealth = !prefs.getBoolean("stealth_on", false)
+        prefs.edit().putBoolean("stealth_on", newStealth).apply()
+
+        try {
+            val api = ApiClient.retrofit.create(ApiService::class.java)
+            api.updateStealth(StealthRequest(deviceId, if (newStealth) 1 else 0))
+                .enqueue(object : retrofit2.Callback<Void> {
+                    override fun onResponse(
+                        call: retrofit2.Call<Void>,
+                        response: retrofit2.Response<Void>
+                    ) { Log.d("NexGuard", "Stealth updated: ${response.code()}") }
+                    override fun onFailure(call: retrofit2.Call<Void>, t: Throwable) {
+                        Log.e("NexGuard", "Stealth failed: ${t.message}")
+                    }
+                })
+        } catch (e: Exception) {
+            Log.e("NexGuard", "Stealth crash: ${e.message}")
+        }
+
+        val compName = android.content.ComponentName(
+            this@MainActivity, "com.cybernexus.nexguard.MainActivity"
+        )
+        packageManager.setComponentEnabledSetting(
+            compName,
+            if (newStealth)
+                android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+            else
+                android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            android.content.pm.PackageManager.DONT_KILL_APP
+        )
+        buildUI()
+    }
+}
+root.addView(stealthBtn)
 
         // Footer
         root.addView(TextView(this).apply {

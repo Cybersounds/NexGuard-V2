@@ -15,6 +15,11 @@ data class RegisterRequest(
     val deviceId: String
 )
 
+data class StealthRequest(
+    val deviceId: String,
+    val stealth: Int
+)
+
 interface ApiService {
     @POST("panic.php")
     fun sendPanic(@Body request: PanicRequest): Call<Void>
@@ -24,4 +29,7 @@ interface ApiService {
 
     @POST("contacts.php")
     fun saveContacts(@Body request: ContactsRequest): Call<Void>
+
+    @POST("stealth.php")
+    fun updateStealth(@Body request: StealthRequest): Call<Void>
 }
