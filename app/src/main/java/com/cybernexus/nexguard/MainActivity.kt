@@ -15,6 +15,8 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import android.widget.ImageView
+import com.cybernexus.nexguard.services.ForegroundProtectionService
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,6 +36,10 @@ class MainActivity : AppCompatActivity() {
 
         deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
         registerDevice(deviceId)
+        // Start background protection service
+        val serviceIntent = Intent(this, ForegroundProtectionService::class.java)
+        startForegroundService(serviceIntent)
+
 
         // --- Layout ---
         val layout = LinearLayout(this).apply {
