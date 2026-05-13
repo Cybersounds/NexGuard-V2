@@ -221,38 +221,29 @@ class MainActivity : AppCompatActivity() {
         // ── Stealth Mode ──
 root.addView(sectionHeader("Stealth Mode", text))
 root.addView(TextView(this).apply {
-    this.text = "Hides app icon. Dial *#1234# on your keypad to reopen."
+    this.text = "🔒 Premium Feature — Upgrade to unlock stealth mode and hide your app icon completely."
     textSize = 12f
-    setTextColor(subText)
+    setTextColor(0xFFF0A500.toInt())
     layoutParams = LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.MATCH_PARENT,
         LinearLayout.LayoutParams.WRAP_CONTENT
     ).apply { setMargins(0, 0, 0, 16) }
 })
 
-val isStealthOn = prefs.getBoolean("stealth_on", false)
-val stealthStatus = TextView(this).apply {
-    this.text = if (isStealthOn) "● Stealth is ON" else "● Stealth is OFF"
-    textSize = 13f
-    setTextColor(if (isStealthOn) 0xFF8B949E.toInt() else green)
-    layoutParams = LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
-    ).apply { setMargins(0, 0, 0, 12) }
-}
-root.addView(stealthStatus)
 
 val stealthBtn = Button(this).apply {
-    this.text = if (isStealthOn) "DISABLE STEALTH MODE" else "ENABLE STEALTH MODE"
+    this.text = if (isStealthOn) "STEALTH MODE — COMING SOON"
     textSize = 14f
-    setTextColor(white)
+    setTextColor(0xFF8B949E.toInt())
+    isEnabled = false
     layoutParams = LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.MATCH_PARENT,
         LinearLayout.LayoutParams.WRAP_CONTENT
     ).apply { setMargins(0, 0, 0, 32) }
-    background = roundedBg(
-        if (isStealthOn) 0xFF6E7681.toInt() else 0xFF8B0000.toInt(), 12
-    )
+    background = roundedBg(0xFF21262D.toInt(), 12)
+}
+root.addView(stealthBtn)
+
     setOnClickListener {
         val newStealth = !prefs.getBoolean("stealth_on", false)
         prefs.edit().putBoolean("stealth_on", newStealth).apply()

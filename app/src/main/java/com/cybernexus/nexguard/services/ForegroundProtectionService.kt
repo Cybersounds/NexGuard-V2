@@ -29,27 +29,38 @@ class ForegroundProtectionService : Service() {
         return START_STICKY
     }
 
-    private fun startForegroundNotification() {
-        val channelId = "nexguard_protection"
+private fun startForegroundNotification() {
+    val channelId = "nexguard_protection"
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "NexGuard Protection",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply { description = "Keeps NexGuard active in background" }
-            getSystemService(NotificationManager::class.java)
-                .createNotificationChannel(channel)
-        }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(
+            channelId,
+            "NexGuard Protection",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply { description = "Tap to open NexGuard" }
+        getSystemService(NotificationManager::class.java)
+            .createNotificationChannel(channel)
+    }
 
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("NexGuard Active")
-            .setContentText("Your protection is running")
-            .setSmallIcon(android.R.drawable.ic_lock_lock)
-            .setOngoing(true)
-            .build()
+    val openIntent = Intent(this, com.cybernexus.nexguard.MainActivity::class.java).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+    }
+    val pendingIntent = android.app.PendingIntent.getActivity(
+        this, 0, openIntent,
+        android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+    )
 
-        startForeground(1, notification)
+    val notification = NotificationCompat.Builder(this, channelId)
+        .setContentTitle("NexGuard Active")
+        .setContentText("Your protection is running — tap to open")
+        .setSmallIcon(android.R.drawable.ic_lock_lock)
+        .setContentIntent(pendingIntent)
+        .setOngoing(true)
+        .build()
+
+    startForeground(1, notification)
+}   
+
     }
 
     private fun onVolumePressed() {
