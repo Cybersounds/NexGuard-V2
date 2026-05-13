@@ -23,19 +23,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private var isDark = true
 
-    private val darkBg       = 0xFF0D1117.toInt()
-    private val darkSurface  = 0xFF161B22.toInt()
-    private val darkText     = 0xFFC9D1D9.toInt()
-    private val darkSubText  = 0xFF8B949E.toInt()
+    private val darkBg      = 0xFF0D1117.toInt()
+    private val darkSurface = 0xFF161B22.toInt()
+    private val darkText    = 0xFFC9D1D9.toInt()
+    private val darkSubText = 0xFF8B949E.toInt()
     private val lightBg      = 0xFFF0F4F8.toInt()
     private val lightSurface = 0xFFFFFFFF.toInt()
     private val lightText    = 0xFF0D1117.toInt()
     private val lightSubText = 0xFF57606A.toInt()
-    private val accentBlue   = 0xFF1F6FEB.toInt()
-    private val panicRed     = 0xFFCC0000.toInt()
-    private val white        = 0xFFFFFFFF.toInt()
-    private val green        = 0xFF238636.toInt()
-    private val errorRed     = 0xFFF85149.toInt()
+    private val accentBlue  = 0xFF1F6FEB.toInt()
+    private val panicRed    = 0xFFCC0000.toInt()
+    private val white       = 0xFFFFFFFF.toInt()
+    private val green       = 0xFF238636.toInt()
+    private val errorRed    = 0xFFF85149.toInt()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,12 +43,12 @@ class MainActivity : AppCompatActivity() {
         prefs = getSharedPreferences("nexguard_prefs", MODE_PRIVATE)
         isDark = prefs.getBoolean("dark_theme", true)
         deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
- 
+
         // Redirect to onboarding if not completed
         if (!prefs.getBoolean("onboarding_done", false)) {
-           startActivity(Intent(this, OnboardingActivity::class.java))
-           finish()
-           return
+            startActivity(Intent(this, OnboardingActivity::class.java))
+            finish()
+            return
         }
 
         ActivityCompat.requestPermissions(this,
@@ -217,68 +217,29 @@ class MainActivity : AppCompatActivity() {
         }
         root.addView(saveBtn)
         root.addView(saveStatus)
-   
-        // ── Stealth Mode ──
-root.addView(sectionHeader("Stealth Mode", text))
-root.addView(TextView(this).apply {
-    this.text = "🔒 Premium Feature — Upgrade to unlock stealth mode and hide your app icon completely."
-    textSize = 12f
-    setTextColor(0xFFF0A500.toInt())
-    layoutParams = LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
-    ).apply { setMargins(0, 0, 0, 16) }
-})
 
-
-val stealthBtn = Button(this).apply {
-    this.text = if (isStealthOn) "STEALTH MODE — COMING SOON"
-    textSize = 14f
-    setTextColor(0xFF8B949E.toInt())
-    isEnabled = false
-    layoutParams = LinearLayout.LayoutParams(
-        LinearLayout.LayoutParams.MATCH_PARENT,
-        LinearLayout.LayoutParams.WRAP_CONTENT
-    ).apply { setMargins(0, 0, 0, 32) }
-    background = roundedBg(0xFF21262D.toInt(), 12)
-}
-root.addView(stealthBtn)
-
-    setOnClickListener {
-        val newStealth = !prefs.getBoolean("stealth_on", false)
-        prefs.edit().putBoolean("stealth_on", newStealth).apply()
-
-        try {
-            val api = ApiClient.retrofit.create(ApiService::class.java)
-            api.updateStealth(StealthRequest(deviceId, if (newStealth) 1 else 0))
-                .enqueue(object : retrofit2.Callback<Void> {
-                    override fun onResponse(
-                        call: retrofit2.Call<Void>,
-                        response: retrofit2.Response<Void>
-                    ) { Log.d("NexGuard", "Stealth updated: ${response.code()}") }
-                    override fun onFailure(call: retrofit2.Call<Void>, t: Throwable) {
-                        Log.e("NexGuard", "Stealth failed: ${t.message}")
-                    }
-                })
-        } catch (e: Exception) {
-            Log.e("NexGuard", "Stealth crash: ${e.message}")
-        }
-
-        val compName = android.content.ComponentName(
-            this@MainActivity, "com.cybernexus.nexguard.MainActivity"
-        )
-        packageManager.setComponentEnabledSetting(
-            compName,
-            if (newStealth)
-                android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-            else
-                android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            android.content.pm.PackageManager.DONT_KILL_APP
-        )
-        buildUI()
-    }
-}
-root.addView(stealthBtn)
+        // Stealth Mode — Premium (disabled)
+        root.addView(sectionHeader("Stealth Mode", text))
+        root.addView(TextView(this).apply {
+            this.text = "🔒 Premium feature — coming soon"
+            textSize = 12f
+            setTextColor(0xFFF0A500.toInt())
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(0, 0, 0, 12) }
+        })
+        root.addView(Button(this).apply {
+            this.text = "STEALTH MODE — UPGRADE TO UNLOCK"
+            textSize = 13f
+            setTextColor(0xFF8B949E.toInt())
+            isEnabled = false
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(0, 0, 0, 32) }
+            background = roundedBg(0xFF21262D.toInt(), 12)
+        })
 
         // Footer
         root.addView(TextView(this).apply {
@@ -286,7 +247,7 @@ root.addView(stealthBtn)
             textSize = 11f
             setTextColor(subText)
             gravity = Gravity.CENTER
-            setPadding(0, 48, 0, 0)
+            setPadding(0, 16, 0, 0)
         })
 
         scroll.addView(root)
