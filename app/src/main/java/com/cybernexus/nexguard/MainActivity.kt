@@ -43,6 +43,13 @@ class MainActivity : AppCompatActivity() {
         prefs = getSharedPreferences("nexguard_prefs", MODE_PRIVATE)
         isDark = prefs.getBoolean("dark_theme", true)
         deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
+ 
+        // Redirect to onboarding if not completed
+        if (!prefs.getBoolean("onboarding_done", false)) {
+           startActivity(Intent(this, OnboardingActivity::class.java))
+           finish()
+           return
+        }
 
         ActivityCompat.requestPermissions(this,
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
