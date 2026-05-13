@@ -9,6 +9,7 @@
 
     <application
         android:label="NexGuard"
+        android:icon="@mipmap/ic_launcher"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
 
         <activity
