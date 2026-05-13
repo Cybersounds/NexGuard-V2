@@ -56,7 +56,15 @@ class MainActivity : AppCompatActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION), 1001)
 
         registerDevice(deviceId)
-        startForegroundService(Intent(this, ForegroundProtectionService::class.java))
+        
+        // Only start service if location permission already granted
+        if (androidx.core.app.ActivityCompat.checkSelfPermission(
+                this, android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            startForegroundService(Intent(this, ForegroundProtectionService::class.java))
+
+        }
 
         buildUI()
     }

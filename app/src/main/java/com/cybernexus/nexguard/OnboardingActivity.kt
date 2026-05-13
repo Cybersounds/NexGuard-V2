@@ -11,6 +11,7 @@ import com.cybernexus.nexguard.network.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.cybernexus.nexguard.services.ForegroundProtectionService
 
 class OnboardingActivity : AppCompatActivity() {
 
@@ -416,8 +417,11 @@ class OnboardingActivity : AppCompatActivity() {
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { setMargins(0, 48, 0, 0) }
             setOnClickListener {
-                // Mark onboarding complete
                 prefs.edit().putBoolean("onboarding_done", true).apply()
+                // Start protection service now that permissions are granted
+                startForegroundService(
+                    Intent(this@OnboardingActivity, ForegroundProtectionService::class.java)
+                )
                 startActivity(Intent(this@OnboardingActivity, MainActivity::class.java))
                 finish()
             }
