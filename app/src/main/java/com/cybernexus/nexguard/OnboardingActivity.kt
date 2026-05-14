@@ -142,6 +142,7 @@ class OnboardingActivity : AppCompatActivity() {
 
         root.addView(TextView(this).apply {
             text = "👥"
+            text = "⚠️ Important: Emergency contacts must have DND disabled to receive SMS alerts."
             textSize = 52f
             gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(
