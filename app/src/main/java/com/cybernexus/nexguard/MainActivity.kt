@@ -53,7 +53,8 @@ class MainActivity : AppCompatActivity() {
 
         ActivityCompat.requestPermissions(this,
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION), 1001)
+	            Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.POST_NOTIFICATIONS), 1001)
 
         registerDevice(deviceId)
         

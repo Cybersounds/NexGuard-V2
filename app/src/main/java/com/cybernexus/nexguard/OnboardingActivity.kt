@@ -142,10 +142,21 @@ class OnboardingActivity : AppCompatActivity() {
 
         root.addView(TextView(this).apply {
             text = "👥"
-            text = "⚠️ Important: Emergency contacts must have DND disabled to receive SMS alerts."
             textSize = 52f
             gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(0, 0, 0, 16) }
+        })
+
+
+        root.addView(TextView(this).apply {
+	    text = "⚠️ Emergency contacts must have DND disabled. Send START to 2442 to disable DND."
+	    textSize = 12f
+	    setTextColor(0xFFF0A500.toInt())
+	    gravity = Gravity.CENTER
+	    layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply { setMargins(0, 0, 0, 16) }
