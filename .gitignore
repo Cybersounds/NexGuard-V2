@@ -1,0 +1,20 @@
+# Signing / secrets — NEVER commit these
+*.jks
+*.keystore
+*-base64.txt
+local.properties
+google-services.json
+
+# Build outputs
+*.apk
+*.aab
+/build/
+/app/build/
+.gradle/
+
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
